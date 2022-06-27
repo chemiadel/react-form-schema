@@ -1,15 +1,15 @@
 export interface ISchema {
-  [key: string]: IField;
+  title?: string;
+  description?: string;
+  fields: IField[];
 }
 
-interface IField {
-  title?: string;
+export interface IField {
+  name: string;
   label?: string;
   render: (value: string, onChange: (value: string) => void) => JSX.Element;
   validation?: IValidation[];
 }
-
-type cb = (value: string) => boolean;
 
 interface IValidation {
   rule: RegExp | ((value: string) => boolean);

@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { ISchema } from "./schema";
+import { ISchema } from "./types";
 import validate from "./validation";
 
 interface IProps {
@@ -25,7 +25,7 @@ export const FormBuilder = ({ onSubmit, schema }: IProps) => {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    console.log({ errors });
+    console.error({ errors });
     onSubmit(data);
   }
   return (
@@ -42,28 +42,28 @@ export const UIGenerator = (
   schema: ISchema
 ): JSX.Element[] => {
   const [data, setData] = state;
-  const elements: JSX.Element[] = [];
 
-  for (let key in schema) {
+  const elements = schema.fields.map((field) => {
+    const key = field.name;
+
     //controllers
-    let value = data[key] || undefined;
-    let onChange = (value: string) =>
+    const value = data[key] || undefined;
+    const onChange = (value: string) =>
       setData((prev: any) => ({ ...prev, [key]: value }));
 
-    let element = schema[key];
-    elements.push(
+    return (
       <div id={key} key={key}>
         {/*Title Label */}
-        {element.label && <label id={`${key}-label`}>{element.label}</label>}
+        {field.label && <label id={`${key}-label`}>{field.label}</label>}
         {/*Input Field */}
-        <div>{element.render(value, onChange)}</div>
+        <div>{field.render(value, onChange)}</div>
         {/*Error Label */}
-        {element.validation && (
+        {field.validation && (
           <label id={`${key}-error-label`}>{errors[key]}</label>
         )}
       </div>
     );
-  }
+  });
 
   return elements;
 };

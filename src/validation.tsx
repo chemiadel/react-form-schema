@@ -1,25 +1,34 @@
-import { useEffect, useState } from "react";
-import type { ISchema } from "./schema";
+import type { ISchema, IField } from "./types";
+
+// type fields = {
+//   [key: ]
+// }
+// type Data = {
+//   [key: ISchema["fields"]['']]: string;
+// };
 
 export const validate = (data: any, schema: ISchema) => {
   const errors: any = {};
-  for (let i in schema) {
-    let elementValidations = schema[i].validation;
-    if (elementValidations) {
-      elementValidations.map((validation) => {
-        if (typeof validation.rule === "function") {
-          if (!validation.rule(data[i])) {
-            errors[i] = validation.errorMessage;
-          }
 
-          return;
+  schema.fields.forEach((field) => {
+    let validations = field.validation;
+
+    validations?.forEach((validation) => {
+      //validate func rule
+      if (typeof validation.rule === "function") {
+        if (!validation.rule(data[field.name])) {
+          field.name = validation.errorMessage;
         }
 
-        if (validation.rule instanceof RegExp) {
-        }
-      });
-    }
-  }
+        return;
+      }
+
+      //validate regex rule
+      if (validation.rule instanceof RegExp) {
+        validation.rule.test(data[field.name]);
+      }
+    });
+  });
 
   return errors;
 };
